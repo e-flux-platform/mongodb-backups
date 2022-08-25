@@ -12,6 +12,7 @@ TARGET_PATH=$TARGET_DIR/$TARGET_FILENAME
 echo "Starting backup"
 echo $DATE_STR > /workdir/data/backup.start.date
 
+rm -f /workdir/data/backup.date
 rm -rf $TARGET_DIR
 mkdir -p $TARGET_DIR
 
