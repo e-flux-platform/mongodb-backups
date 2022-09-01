@@ -1,4 +1,4 @@
-FROM mongo:4.0.9-xenial
+FROM mongo:5.0.11-focal
 
 RUN apt-get -y update --fix-missing
 RUN apt-get -y install curl bash cron
