@@ -1,14 +1,15 @@
 FROM mongo:5.0.11-focal
 
 RUN apt-get -y update --fix-missing
-RUN apt-get -y install curl bash cron
+RUN apt-get -y install curl bash
 
 RUN mkdir /workdir
 RUN mkdir /workdir/data
 WORKDIR /workdir
-COPY install_gcloud_sdk.sh /workdir
-RUN ./install_gcloud_sdk.sh
+
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - \
+    && apt-get update -y \
+    && apt-get install google-cloud-cli -y
 
 ADD . /workdir
-
-CMD ["./entrypoint.sh"]

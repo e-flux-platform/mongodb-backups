@@ -1,13 +1,15 @@
 #!/bin/bash
 
-MONGO_HOST=`cat /workdir/MONGO_HOST.env`
-MONGO_DB=`cat /workdir/MONGO_DB.env`
-BACKUPS_GS_BUCKET=`cat /workdir/BACKUPS_GS_BUCKET.env`
 DATE_STR=`date +%Y-%m-%d-%H-%M`
 TARGET_FILENAME=mongo-$MONGO_DB-$DATE_STR.tar.gz
 TARGET_DIR=/workdir/data/archive
 
 TARGET_PATH=$TARGET_DIR/$TARGET_FILENAME
+
+if ! gsutil ls gs://$BACKUPS_GS_BUCKET > /dev/null; then
+    echo "Expected valid storage bucket at BACKUPS_GS_BUCKET"
+    exit 1
+fi
 
 echo "Starting backup"
 echo $DATE_STR > /workdir/data/backup.start.date
@@ -32,3 +34,5 @@ DATE_STR=`date +%Y-%m-%d-%H-%M`
 echo $DATE_STR > /workdir/data/backup.date
 
 gsutil cp /workdir/data/backup.date gs://$BACKUPS_GS_BUCKET
+
+curl -I $HEARTBEAT_URL
