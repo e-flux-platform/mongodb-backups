@@ -13,3 +13,4 @@ RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.c
     && apt-get install google-cloud-cli -y
 
 ADD . /workdir
+CMD ["./run.sh"]
