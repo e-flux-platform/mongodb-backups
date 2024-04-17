@@ -18,7 +18,13 @@ rm -f /workdir/data/backup.date
 rm -rf $TARGET_DIR
 mkdir -p $TARGET_DIR
 
-mongodump -h $MONGO_HOST -d $MONGO_DB --gzip --archive=$TARGET_PATH
+if [[ -z ${MONGO_DB+x} ]]; then
+    echo "Backing up all databases"
+    mongodump -h $MONGO_HOST --gzip --archive=$TARGET_PATH
+else
+    echo "Backing up database $MONGO_DB"
+    mongodump -h $MONGO_HOST -d $MONGO_DB --gzip --archive=$TARGET_PATH
+fi
 
 gsutil cp $TARGET_PATH gs://$BACKUPS_GS_BUCKET/$TARGET_FILENAME
 

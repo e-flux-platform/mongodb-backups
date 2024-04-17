@@ -3,6 +3,6 @@ build:
 	docker tag e-flux-tools-mongo-backup:latest europe-west3-docker.pkg.dev/eflux-staging/docker/e-flux-tools-mongo-backup:latest
 	docker tag e-flux-tools-mongo-backup:latest europe-west3-docker.pkg.dev/eflux-production/docker/e-flux-tools-mongo-backup:latest
 
-push:
+push: build
 	docker push europe-west3-docker.pkg.dev/eflux-staging/docker/e-flux-tools-mongo-backup:latest
 	docker push europe-west3-docker.pkg.dev/eflux-production/docker/e-flux-tools-mongo-backup:latest
