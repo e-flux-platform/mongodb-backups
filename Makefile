@@ -1,8 +1,18 @@
+DOCKER_REPOSITORY ?= quay.io/road
+BRANCH_NAME ?= $(shell git rev-parse --abbrev-ref HEAD)
+GIT_HASH ?= $(shell git rev-parse HEAD)
+RELEASE_ID ?= $(shell id -un)-local
+DOCKER_LATEST_TAG ?= latest
+
 build:
-	DOCKER_BUILDKIT=1 DOCKER_SCAN_SUGGEST=false docker build -t e-flux-tools-mongo-backup:latest -f Dockerfile --platform=linux/amd64 .
-	docker tag e-flux-tools-mongo-backup:latest europe-west3-docker.pkg.dev/eflux-staging/docker/e-flux-tools-mongo-backup:latest
-	docker tag e-flux-tools-mongo-backup:latest europe-west3-docker.pkg.dev/eflux-production/docker/e-flux-tools-mongo-backup:latest
+	docker buildx build \
+	--cache-from type=local,src=/tmp/.buildx-$(BRANCH_NAME)-mongodb-backups-cache \
+	--cache-to type=local,mode=max,dest=/tmp/.buildx-$(BRANCH_NAME)-mongodb-backups-cache \
+	--provenance mode=min,inline-only=true \
+	--tag $(DOCKER_REPOSITORY)/mongodb-backups:$(GIT_HASH) \
+	--tag $(DOCKER_REPOSITORY)/mongodb-backups:$(DOCKER_LATEST_TAG) \
+	--tag $(DOCKER_REPOSITORY)/mongodb-backups:release-$(RELEASE_ID) \
+	--push \
+	.
 
 push: build
-	docker push europe-west3-docker.pkg.dev/eflux-staging/docker/e-flux-tools-mongo-backup:latest
-	docker push europe-west3-docker.pkg.dev/eflux-production/docker/e-flux-tools-mongo-backup:latest
