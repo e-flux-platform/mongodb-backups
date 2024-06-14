@@ -6,6 +6,11 @@ TARGET_DIR=/workdir/data/archive
 
 TARGET_PATH=$TARGET_DIR/$TARGET_FILENAME
 
+if [[ -z "$MONGO_URI" && -z "$MONGO_HOST" ]]; then
+    echo "Error: Both MONGO_URI and MONGO_HOST are empty"
+    exit 1
+fi
+
 if ! gsutil ls gs://$BACKUPS_GS_BUCKET > /dev/null; then
     echo "Expected valid storage bucket at BACKUPS_GS_BUCKET"
     exit 1
@@ -18,13 +23,17 @@ rm -f /workdir/data/backup.date
 rm -rf $TARGET_DIR
 mkdir -p $TARGET_DIR
 
-if [[ -z ${MONGO_DB+x} ]]; then
-    echo "Backing up all databases"
-    mongodump -h $MONGO_HOST --gzip --archive=$TARGET_PATH
-else
-    echo "Backing up database $MONGO_DB"
-    mongodump -h $MONGO_HOST -d $MONGO_DB --gzip --archive=$TARGET_PATH
+CONNECTION_ARGS= "-h ${MONGO_HOST}"
+if [[ -n "$MONGO_URI" ]]; then 
+    CONNECTION_ARGS="--uri ${MONGO_URI}"
+else 
+    if [[ -n "$MONGO_DB" ]]; then
+        CONNECTION_ARGS+=" -d ${MONGO_DB}"
+    fi  
 fi
+
+echo "Performing backup..."
+mongodump $CONNECTION_ARGS --gzip --archive=$TARGET_PATH
 
 gsutil cp $TARGET_PATH gs://$BACKUPS_GS_BUCKET/$TARGET_FILENAME
 
