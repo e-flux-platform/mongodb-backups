@@ -23,7 +23,7 @@ rm -f /workdir/data/backup.date
 rm -rf $TARGET_DIR
 mkdir -p $TARGET_DIR
 
-CONNECTION_ARGS= "-h ${MONGO_HOST}"
+CONNECTION_ARGS="-h ${MONGO_HOST}"
 if [[ -n "$MONGO_URI" ]]; then 
     CONNECTION_ARGS="--uri ${MONGO_URI}"
 else 
